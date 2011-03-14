@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition 
+  xmlns="urn:jbpm.org:jpdl-3.2"
+  name="Approval Process">
+   <start-state name="start">
+		<transition to="Submit request by Accountant"></transition>
+	</start-state>
+   <decision name="HOD Approved?">
+		<handler class="com.fairfield.rules.handlers.HODDecisionHandler"></handler>
+		<transition to="Form Rejected" name="to Form Rejected"></transition>
+		<transition to="Review by Accountant" name="to Review by Accountant"></transition>
+	</decision>
+
+	<task-node name="Pending for HOD to approve" signal="last">
+		<task name="Pending for HOD to approve">
+			<assignment actor-id="hod"></assignment>
+			<controller></controller>
+			<controller>
+				<variable access="read,required" name="userId"></variable>
+				<variable access="read,required" name="userName"></variable>
+				<variable access="read,write" name="remark"></variable>
+				<variable access="read,required" name="processId"></variable>
+			</controller>
+		</task>
+		<transition to="HOD Approved?" name="to decide"></transition>
+	</task-node>
+
+	<task-node name="Review by Accountant">
+		<task name="Review by Accountant">
+			<assignment actor-id="accountant"></assignment>
+			<controller>
+				<variable access="read" name="userId"></variable>
+				<variable access="read" name="userName"></variable>
+				<variable access="read" name="remark"></variable>
+				<variable access="read" name="processId"></variable>
+			</controller>
+		</task>
+	</task-node>
+
+	<task-node name="Submit request by Accountant">
+		<task name="Submit request by Accountant">
+			<assignment actor-id="accountant"></assignment>
+			<controller>
+				<variable access="read,write" name="userId"></variable>
+				<variable access="read,write" name="userName"></variable>
+				<variable access="read,write" name="processId"></variable>
+			</controller>
+		</task>
+		<transition to="Pending for HOD to approve"></transition>
+	</task-node>
+
+   <end-state name="Form Rejected"></end-state>
+</process-definition>
